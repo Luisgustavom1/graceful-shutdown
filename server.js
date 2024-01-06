@@ -6,16 +6,27 @@ const knownErrors = [
 
 const log = msg => console.log(`pid: [${process.pid}] - ${msg}`);
 
+process.on("exit", code => {
+	// do some cleanup
+	// like closing db connections, etc
+	// to not allow users to do some actions
+	log(`Server closed with success`)
+	log(`DB closed with success`)
+	process.exit(code)
+})
+
 knownErrors.forEach(({ exitCode, event }) => {
 	process.on(event, (error) => {
 		log(`Process exiting due to ${event} with error: ${error}`);
 		if (exitCode === UNKNOWN_ERROR) {
-			process.exit(exitCode);
+			return process.exit(exitCode);
 		}
 
 		process.exit(exitCode);
 	})
 })
+
+log('Process started');	
 
 let counter = 0;
 const connectToDB = async () => {
